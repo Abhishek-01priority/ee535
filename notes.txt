@@ -1,0 +1,7 @@
+MIMO Channel modelling outcomes
+1. Delay spread : PDP should be present over >2 taps
+2. Frequency selective behaviour 
+3. Coherence bandwidth
+4. Rank should be between 2 and 4
+5. channel matrix should have atleast 3 semi-dominant eigenvalues
+6. High rms angular spread for AoA and AoD
