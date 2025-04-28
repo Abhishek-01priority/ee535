@@ -3,14 +3,14 @@
 %% Learning:  1) Sometimes the cluster centers overlap but it should be completely fine because 
 %%               they will have same angular spread and phyiscally can be interpreted as same cluster
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function [H, alpha, scatterers, aoa, aod, tau] = circular_clusters(N_clusters, N_scatters_per_cluster)
+function [H, alpha, scatterers, aoa, aod, tau] = circular_clusters(N_clusters, N_scatters_per_cluster, geoparams)
 
   % Geometry Setup
-  c = 150;                   % Half-distance between Tx and Rx
+  c = geoparams.c;                   % Half-distance between Tx and Rx
   tx = [-c, 0];
   rx = [c, 0];
-  R = 200;                   % Radius of overall circle
-  cluster_spread = 10;        % Std-dev spread within cluster (meters)
+  R = geoparams.R_circle;
+  cluster_spread = 5;        % Std-dev spread within cluster (meters)
 
   lambda = 1;
   d = lambda/2;
@@ -30,16 +30,44 @@ function [H, alpha, scatterers, aoa, aod, tau] = circular_clusters(N_clusters, N
   Ar = zeros(Nr, total_L);
 
   % Step 1: Generate cluster centers randomly inside a big circle
-  for c_idx = 1:N_clusters
-    while true
-      x_center = (2*rand()-1)*R;
-      y_center = (2*rand()-1)*R;
-      if x_center^2 + y_center^2 <= R^2
-        cluster_centers(c_idx,:) = [x_center, y_center];
-        break;
+  % tic()
+  % for c_idx = 1:N_clusters
+  %   while true
+  %     x_center = (2*rand()-1)*R;
+  %     y_center = (2*rand()-1)*R;
+  %     if x_center^2 + y_center^2 <= R^2
+  %       cluster_centers(c_idx,:) = [x_center, y_center];
+  %       break;
+  %     end
+  %   end
+  % end
+  % toc()
+
+  % tic()
+  cluster_centers = [];
+  N_cluster_per_ellipse = split_clusters_across_ellipse(length(R), N_clusters);
+  for nidx = 1 : length(R)
+    x_center = (2 * rand(N_cluster_per_ellipse(nidx), 1) - 1) * R(nidx);
+    y_center = (2 * rand(N_cluster_per_ellipse(nidx), 1) - 1) * R(nidx);
+    cc = [x_center, y_center];
+    % nof clusters not satisfying the condition
+    voidclusters = sum( cc(:,1).^2 + cc(:,2).^2 > R(nidx)^2 );
+    cc(cc(:,1).^2 + cc(:,2).^2 > R(nidx)^2, :) = [];
+    for c_idx = 1 : voidclusters
+      while true
+        x_center = (2 * rand() - 1) * R(nidx);
+        y_center = (2 * rand() - 1) * R(nidx);
+        if x_center^2 + y_center^2 <= R(nidx)^2
+          cc = [ cc ; [x_center, y_center] ];
+          break;
+        end
       end
     end
+    cluster_centers = [cluster_centers ; cc];
+    cc = [];
   end
+  % toc()
+
 
   % Step 2: Generate scatterers around each cluster center
   idx = 1;
@@ -83,7 +111,9 @@ function [H, alpha, scatterers, aoa, aod, tau] = circular_clusters(N_clusters, N
   % % Plot Geometry
   % theta = linspace(0, 2*pi, 300);
   % figure; hold on; axis equal; grid on;
-  % plot(R*cos(theta), R*sin(theta), 'r--', 'DisplayName', 'Boundary Circle');
+  % for i = 1 : length(R)
+  %   plot(R(i)*cos(theta), R(i)*sin(theta), 'r--', 'DisplayName', 'Boundary Circle');
+  % end
 
   % scatter(cluster_centers(:,1), cluster_centers(:,2), 100, 'g', 'filled', 'DisplayName', 'Cluster Centers');
   % scatter(scatterers(:,1), scatterers(:,2), 15, 'k', 'filled', 'DisplayName', 'Scatterers');
@@ -94,4 +124,6 @@ function [H, alpha, scatterers, aoa, aod, tau] = circular_clusters(N_clusters, N
   % title('Scatterers Grouped in Clusters Inside Circle');
   % xlabel('x-axis (m)'); ylabel('y-axis (m)');
   % legend('show');
+  % keyboard
+
 end

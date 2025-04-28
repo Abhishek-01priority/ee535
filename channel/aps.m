@@ -61,21 +61,21 @@ function [aoa_spread, aod_spread] = aps(phi_r, phi_t, alpha)
 	  R_tx += alpha_power(l) * (at * at');
 	end
 
-	% Normalize correlation matrices
-	R_rx /= trace(R_rx);
-	R_tx /= trace(R_tx);
+	% % Normalize correlation matrices
+	% R_rx /= trace(R_rx);
+	% R_tx /= trace(R_tx);
 
-	% Plot spatial correlation matrices
-	figure;
-	subplot(1,2,1);
-	imagesc(abs(R_rx)); colorbar;
-	title(sprintf('Rx Spatial Correlation\nAoA spread=%.2f°', aoa_spread));
-	xlabel('Rx Antenna Index'); ylabel('Rx Antenna Index');
+	% % Plot spatial correlation matrices
+	% figure;
+	% subplot(1,2,1);
+	% imagesc(abs(R_rx)); colorbar;
+	% title(sprintf('Rx Spatial Correlation\nAoA spread=%.2f°', aoa_spread));
+	% xlabel('Rx Antenna Index'); ylabel('Rx Antenna Index');
 
-	subplot(1,2,2);
-	imagesc(abs(R_tx)); colorbar;
-	title(sprintf('Tx Spatial Correlation\nAoD spread=%.2f°', aod_spread));
-	xlabel('Tx Antenna Index'); ylabel('Tx Antenna Index');
+	% subplot(1,2,2);
+	% imagesc(abs(R_tx)); colorbar;
+	% title(sprintf('Tx Spatial Correlation\nAoD spread=%.2f°', aod_spread));
+	% xlabel('Tx Antenna Index'); ylabel('Tx Antenna Index');
 
 
 end
